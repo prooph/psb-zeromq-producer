@@ -89,6 +89,8 @@ class ZeroMQMessageProducer implements MessageProducer
             if (! in_array($this->dsn, $connectedTo)) {
                 $this->zmqClient->connect($this->dsn);
             }
+
+            $this->connected = true;
         }
 
         return $this->zmqClient;

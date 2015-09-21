@@ -29,6 +29,11 @@ class ZeroMQMessageProducerTest extends TestCase
         $this->zmqMessageProducer = new ZeroMQMessageProducer($this->zmqClient, $this->messageConverter, 'test:dsn');
     }
 
+    public function tearDown()
+    {
+        m::close();
+    }
+
     /**
      * @test
      */
@@ -37,10 +42,11 @@ class ZeroMQMessageProducerTest extends TestCase
         $zmqMessageProducer = $this->zmqMessageProducer;
         $doSomething = new DoSomething(['data' => 'test command']);
 
+        $this->add_connections(['test:dsn']);
         $this
             ->zmqClient
             ->shouldReceive('send')
-            ->with($this->validate_message_body($doSomething))
+            ->with($this->validate_message_body($doSomething), \ZMQ::MODE_NOBLOCK)
             ->once()
             ->andReturnNull();
 
@@ -60,6 +66,39 @@ class ZeroMQMessageProducerTest extends TestCase
         $this->zmqClient->shouldNotReceive('connect')->with('test:dsn');
         $this->zmqClient->shouldReceive('send')->andReturnNull();
 
+        $zmqMessageProducer($doSomething);
+    }
+
+    /**
+     * @test
+     */
+    public function it_will_manually_connect_if_dsn_not_in_endpoints()
+    {
+        $zmqMessageProducer = $this->zmqMessageProducer;
+        $doSomething = new DoSomething(['data' => 'test command']);
+
+        $this->add_connections([]);
+
+        $this->zmqClient->shouldReceive('connect')->once();
+        $this->zmqClient->shouldReceive('send')->andReturnNull();
+
+        $zmqMessageProducer($doSomething);
+    }
+
+    /**
+     * @test
+     */
+    public function it_will_only_manually_connect_once_if_dsn_not_in_endpoints()
+    {
+        $zmqMessageProducer = $this->zmqMessageProducer;
+        $doSomething = new DoSomething(['data' => 'test command']);
+
+        $this->add_connections([]);
+
+        $this->zmqClient->shouldReceive('connect')->once();
+        $this->zmqClient->shouldReceive('send')->andReturnNull();
+
+        $zmqMessageProducer($doSomething);
         $zmqMessageProducer($doSomething);
     }
 
