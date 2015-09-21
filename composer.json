@@ -1,0 +1,42 @@
+{
+    "name": "prooph/psb-zeromq-producer",
+    "description": "ZeroMQ Message Producer for Prooph Service Bus",
+    "homepage": "https://github.com/bweston92/psb-zeromq-producer",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Bradley Weston",
+            "email": "me@bweston.me"
+        }
+    ],
+    "keywords": [
+        "prooph",
+        "CQRS",
+        "messaging",
+        "zeromq"
+    ],
+    "require": {
+        "php": ">=5.5",
+        "ext-zmq": "*"
+    },
+    "require-dev": {
+        "prooph/service-bus": "dev-master",
+        "phpunit/phpunit": "~4.7",
+        "mockery/mockery": "~0.9.4",
+        "fabpot/php-cs-fixer": "1.7.*",
+        "satooshi/php-coveralls": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Prooph\\ServiceBus\\Message\\ZeroMQ\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Prooph\\ServiceBusTest\\": "vendor/prooph/service-bus/tests/"
+        }
+    },
+    "suggest": {
+        "container-interop/container-interop": "Allows use of ZMQ producer factory."
+    }
+}
