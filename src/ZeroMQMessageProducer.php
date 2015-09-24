@@ -3,7 +3,6 @@
 namespace Prooph\ServiceBus\Message\ZeroMQ;
 
 use ZMQ;
-use ZMQSocket;
 use Prooph\Common\Messaging\MessageConverter;
 use Prooph\Common\Messaging\MessageDataAssertion;
 use Prooph\Common\Messaging\Message;
@@ -13,28 +12,20 @@ use React\Promise\Deferred;
 
 class ZeroMQMessageProducer implements MessageProducer
 {
-    /** @var ZMQSocket */
+    /** @var ZeroMQSocket */
     private $zmqClient;
 
     /** @var MessageConverter */
     private $messageConverter;
 
-    /** @var string */
-    private $dsn;
-
-    /** @var bool */
-    private $connected;
-
     /**
-     * @param ZMQSocket $zmqClient
+     * @param ZeroMQSocket $zmqClient
      * @param MessageConverter $messageConverter
-     * @param string $dsn
      */
-    public function __construct(ZMQSocket $zmqClient, MessageConverter $messageConverter, $dsn)
+    public function __construct(ZeroMQSocket $zmqClient, MessageConverter $messageConverter)
     {
         $this->zmqClient = $zmqClient;
         $this->messageConverter = $messageConverter;
-        $this->dsn = $dsn;
     }
 
     /**
@@ -60,7 +51,7 @@ class ZeroMQMessageProducer implements MessageProducer
 
         $data = $this->arrayFromMessage($message);
 
-        $this->connection()->send(json_encode($data), ZMQ::MODE_NOBLOCK);
+        $this->zmqClient->send(json_encode($data), ZMQ::MODE_NOBLOCK);
     }
 
     /**
@@ -76,23 +67,5 @@ class ZeroMQMessageProducer implements MessageProducer
         $messageData['created_at'] = $message->createdAt()->format('Y-m-d\TH:i:s.u');
 
         return $messageData;
-    }
-
-    /**
-     * @return ZMQSocket
-     */
-    private function connection()
-    {
-        if (! $this->connected) {
-            $connectedTo = $this->zmqClient->getEndpoints();
-
-            if (! in_array($this->dsn, $connectedTo)) {
-                $this->zmqClient->connect($this->dsn);
-            }
-
-            $this->connected = true;
-        }
-
-        return $this->zmqClient;
     }
 }

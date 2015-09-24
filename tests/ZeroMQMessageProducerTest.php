@@ -2,16 +2,16 @@
 
 namespace Prooph\ServiceBusTest;
 
-use ZMQSocket;
-use Mockery as m;
+use Prophecy\Argument;
 use Prooph\Common\Messaging\DomainMessage;
 use Prooph\ServiceBusTest\Mock\DoSomething;
 use Prooph\Common\Messaging\NoOpMessageConverter;
+use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQSocket;
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQMessageProducer;
 
 class ZeroMQMessageProducerTest extends TestCase
 {
-    /** @var ZMQSocket|m\MockInterface */
+    /** @var ZeroMQSocket */
     private $zmqClient;
 
     /** @var NoOpMessageConverter */
@@ -24,14 +24,9 @@ class ZeroMQMessageProducerTest extends TestCase
     {
         parent::setUp();
 
-        $this->zmqClient = m::mock(ZMQSocket::class);
+        $this->zmqClient = $this->prophesize(ZeroMQSocket::class);
         $this->messageConverter = new NoOpMessageConverter;
-        $this->zmqMessageProducer = new ZeroMQMessageProducer($this->zmqClient, $this->messageConverter, 'test:dsn');
-    }
-
-    public function tearDown()
-    {
-        m::close();
+        $this->zmqMessageProducer = new ZeroMQMessageProducer($this->zmqClient->reveal(), $this->messageConverter);
     }
 
     /**
@@ -42,86 +37,26 @@ class ZeroMQMessageProducerTest extends TestCase
         $zmqMessageProducer = $this->zmqMessageProducer;
         $doSomething = new DoSomething(['data' => 'test command']);
 
-        $this->add_connections(['test:dsn']);
-        $this
-            ->zmqClient
-            ->shouldReceive('send')
-            ->with($this->validate_message_body($doSomething), \ZMQ::MODE_NOBLOCK)
-            ->once()
-            ->andReturnNull();
+        $this->zmqClient
+            ->send($this->validate_message_body($doSomething), \ZMQ::MODE_NOBLOCK)
+            ->willReturn(null)
+            ->shouldBeCalled();
 
-        $zmqMessageProducer($doSomething);
-    }
-
-    /**
-     * @test
-     */
-    public function it_only_manually_connects_if_dsn_not_connected_to()
-    {
-        $zmqMessageProducer = $this->zmqMessageProducer;
-        $doSomething = new DoSomething(['data' => 'test command']);
-
-        $this->add_connections(['test:dsn']);
-
-        $this->zmqClient->shouldNotReceive('connect')->with('test:dsn');
-        $this->zmqClient->shouldReceive('send')->andReturnNull();
-
-        $zmqMessageProducer($doSomething);
-    }
-
-    /**
-     * @test
-     */
-    public function it_will_manually_connect_if_dsn_not_in_endpoints()
-    {
-        $zmqMessageProducer = $this->zmqMessageProducer;
-        $doSomething = new DoSomething(['data' => 'test command']);
-
-        $this->add_connections([]);
-
-        $this->zmqClient->shouldReceive('connect')->once();
-        $this->zmqClient->shouldReceive('send')->andReturnNull();
-
-        $zmqMessageProducer($doSomething);
-    }
-
-    /**
-     * @test
-     */
-    public function it_will_only_manually_connect_once_if_dsn_not_in_endpoints()
-    {
-        $zmqMessageProducer = $this->zmqMessageProducer;
-        $doSomething = new DoSomething(['data' => 'test command']);
-
-        $this->add_connections([]);
-
-        $this->zmqClient->shouldReceive('connect')->once();
-        $this->zmqClient->shouldReceive('send')->andReturnNull();
-
-        $zmqMessageProducer($doSomething);
         $zmqMessageProducer($doSomething);
     }
 
     /**
      * @param DomainMessage $command
-     * @return m\Matcher\Closure
+     * @return \Prophecy\Argument\Token\CallbackToken
      */
     protected function validate_message_body($command)
     {
-        return m::on(function ($actual) use ($command) {
+        return  Argument::that(function ($actual) use ($command) {
             $messageData = $this->messageConverter->convertToArray($command);
             $messageData['created_at'] = $command->createdAt()->format('Y-m-d\TH:i:s.u');
             $expected = json_encode($messageData);
 
             return $expected === $actual;
         });
-    }
-
-    /**
-     * @param array $dataSourceNames
-     */
-    protected function add_connections(array $dataSourceNames)
-    {
-        $this->zmqClient->shouldReceive('getEndpoints')->andReturn($dataSourceNames);
     }
 }

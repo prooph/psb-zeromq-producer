@@ -2,6 +2,7 @@
 
 namespace Prooph\ServiceBus\Message\ZeroMQ\Container;
 
+use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQSocket;
 use ZMQ;
 use ZMQSocket;
 use ZMQContext;
@@ -22,22 +23,23 @@ final class ZeroMQMessageProducerFactory
         $dsn = isset($config['dsn']) ? $config['dsn'] : 'tcp://127.0.0.1:5555';
         $persistentId = isset($config['persistent_id']) ? $config['persistent_id'] : 'prooph';
 
-        $socket = $this->makeConnection($persistentId);
+        $socket = $this->makeConnection($persistentId, $dsn);
         $messageConverter = $this->makeMessageConverter($config);
 
-        return new ZeroMQMessageProducer($socket, $messageConverter, $dsn);
+        return new ZeroMQMessageProducer($socket, $messageConverter);
     }
 
     /**
      * @param string $persistentId
-     * @return \ZMQSocket
+     * @param string $dsn
+     * @return ZeroMQSocket
      */
-    private function makeConnection($persistentId)
+    private function makeConnection($persistentId, $dsn)
     {
         $context = new ZMQContext;
         $socket = new ZMQSocket($context, ZMQ::SOCKET_PUB, $persistentId);
 
-        return $socket;
+        return new ZeroMQSocket($socket, $dsn);
     }
 
     /**
