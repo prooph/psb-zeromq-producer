@@ -1,6 +1,6 @@
 <?php
 
-namespace Prooph\ServiceBusTest;
+namespace ProophTest\ServiceBus\Message\ZeroMQ;
 
 use Prophecy\Argument;
 use Prooph\Common\Messaging\DomainMessage;
@@ -9,7 +9,7 @@ use Prooph\Common\Messaging\NoOpMessageConverter;
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQSocket;
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQMessageProducer;
 
-class ZeroMQMessageProducerTest extends TestCase
+class ZeroMQMessageProducerTest extends \PHPUnit_Framework_TestCase
 {
     /** @var ZeroMQSocket */
     private $zmqClient;
@@ -51,7 +51,7 @@ class ZeroMQMessageProducerTest extends TestCase
      */
     protected function validate_message_body($command)
     {
-        return  Argument::that(function ($actual) use ($command) {
+        return Argument::that(function ($actual) use ($command) {
             $messageData = $this->messageConverter->convertToArray($command);
             $messageData['created_at'] = $command->createdAt()->format('Y-m-d\TH:i:s.u');
             $expected = json_encode($messageData);

@@ -7,6 +7,11 @@
         {
             "name": "Bradley Weston",
             "email": "me@bweston.me"
+        },
+        {
+            "name": "Alexander Miertsch",
+            "email": "contact@prooph.de",
+            "homepage": "http://www.prooph.de"
         }
     ],
     "keywords": [
@@ -32,7 +37,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Prooph\\ServiceBusTest\\": "vendor/prooph/service-bus/tests/"
+            "Prooph\\ServiceBusTest\\": "vendor/prooph/service-bus/tests/",
+            "ProophTest\\ServiceBus\\Message\\ZeroMQ\\": "./tests"
         }
     },
     "suggest": {
