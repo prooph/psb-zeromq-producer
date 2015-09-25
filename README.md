@@ -26,4 +26,3 @@ License
 -------
 
 Released under the [New BSD License](LICENSE).
-
