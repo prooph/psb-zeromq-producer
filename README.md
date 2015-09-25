@@ -1,6 +1,7 @@
 ZeroMQ message dispatcher for ProophServiceBus
 ===================================================
-
+[![Build Status](https://travis-ci.org/prooph/psb-zeromq-producer.svg)](https://travis-ci.org/prooph/psb-zeromq-producer)
+[![Coverage Status](https://coveralls.io/repos/prooph/psb-zeromq-producer/badge.svg?branch=master&service=github)](https://coveralls.io/github/prooph/psb-zeromq-producer?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/prooph/improoph)
 
 Use [ZeroMQ](http://zeromq.org/) as message producer for [Prooph Service Bus](https://github.com/prooph/service-bus).
