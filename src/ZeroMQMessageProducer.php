@@ -68,4 +68,12 @@ class ZeroMQMessageProducer implements MessageProducer
 
         return $messageData;
     }
+
+    /**
+     * @return ZeroMQSocket
+     */
+    public function getSocket()
+    {
+        return $this->zmqClient;
+    }
 }
