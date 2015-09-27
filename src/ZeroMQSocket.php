@@ -43,4 +43,20 @@ class ZeroMQSocket
 
         $this->socket->send($message, $mode);
     }
+
+    /**
+     * @return string
+     */
+    public function getDsn()
+    {
+        return $this->dsn;
+    }
+
+    /**
+     * @return ZMQSocket
+     */
+    public function getSocket()
+    {
+        return $this->socket;
+    }
 }

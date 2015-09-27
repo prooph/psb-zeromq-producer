@@ -12,6 +12,9 @@ use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQMessageProducer;
 
 final class ZeroMQMessageProducerFactory
 {
+    const DEFAULT_DSN = 'tcp://127.0.0.1:5555';
+    const DEFAULT_PERSISTENT_ID = 'prooph';
+
     /**
      * @param ContainerInterface $container
      * @return ZeroMQMessageProducer
@@ -20,8 +23,8 @@ final class ZeroMQMessageProducerFactory
     {
         $config = $container->get('config')['prooph']['producer'];
 
-        $dsn = isset($config['dsn']) ? $config['dsn'] : 'tcp://127.0.0.1:5555';
-        $persistentId = isset($config['persistent_id']) ? $config['persistent_id'] : 'prooph';
+        $dsn = isset($config['dsn']) ? $config['dsn'] : self::DEFAULT_DSN;
+        $persistentId = isset($config['persistent_id']) ? $config['persistent_id'] : self::DEFAULT_PERSISTENT_ID;
 
         $socket = $this->makeConnection($persistentId, $dsn);
         $messageConverter = $this->makeMessageConverter($config);
