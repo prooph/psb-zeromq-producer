@@ -51,7 +51,7 @@ class ZeroMQMessageProducer implements MessageProducer
 
         $data = $this->arrayFromMessage($message);
 
-        $this->zmqClient->send(json_encode($data), ZMQ::MODE_NOBLOCK);
+        $this->zmqClient->send(json_encode($data), ZMQ::MODE_DONTWAIT);
     }
 
     /**
