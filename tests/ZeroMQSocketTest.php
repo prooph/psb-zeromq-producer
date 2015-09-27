@@ -2,7 +2,6 @@
 
 namespace ProophTest\ServiceBus\Message\ZeroMQ;
 
-
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQSocket;
 
 class ZeroMQSocketTest extends \PHPUnit_Framework_TestCase
@@ -17,12 +16,13 @@ class ZeroMQSocketTest extends \PHPUnit_Framework_TestCase
     private $dsn = 'tcp://localhost:5555';
 
     /** @var string */
-    private $storage = __DIR__ . '/zmq-out.log';
+    private $storage;
 
     protected function setUp()
     {
         parent::setUp();
 
+        $this->storage = __DIR__ . '/zmq-out.log';
         $this->socket = new \ZMQSocket(new \ZMQContext, \ZMQ::SOCKET_PUSH);
         $this->zmqClient = new ZeroMQSocket($this->socket, $this->dsn);
     }
