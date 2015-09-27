@@ -29,7 +29,7 @@ class ZeroMQSocket
      * @param string|array $message
      * @param int $mode
      */
-    public function send($message, $mode)
+    public function send($message, $mode = 0)
     {
         if (false === $this->connected) {
             $connectedTo = $this->socket->getEndpoints();
