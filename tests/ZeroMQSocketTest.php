@@ -40,6 +40,7 @@ class ZeroMQSocketTest extends \PHPUnit_Framework_TestCase
         @unlink($this->storage);
         $this->zmqClient->send($message = 'testing-123');
 
+        sleep(5);
         $contents = trim(file_get_contents($this->storage));
 
         $this->assertEquals($message, $contents);
