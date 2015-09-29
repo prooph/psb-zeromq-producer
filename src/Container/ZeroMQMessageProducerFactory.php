@@ -40,7 +40,7 @@ final class ZeroMQMessageProducerFactory
     private function makeConnection($persistentId, $dsn)
     {
         $context = new ZMQContext;
-        $socket = new ZMQSocket($context, ZMQ::SOCKET_PUB, $persistentId);
+        $socket = new ZMQSocket($context, ZMQ::SOCKET_PUSH, $persistentId);
 
         return new ZeroMQSocket($socket, $dsn);
     }
