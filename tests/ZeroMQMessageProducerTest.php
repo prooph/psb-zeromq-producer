@@ -49,8 +49,11 @@ class ZeroMQMessageProducerTest extends \PHPUnit_Framework_TestCase
      * @test
      * @expectedException \RuntimeException
      */
-    public function it_throws_runtime_exception_when_request_deferred()
+    public function it_throws_runtime_exception_when_request_deferred_and_not_using_rpc()
     {
+        $this->zmqClient->handlesDeferred()->willReturn(false)->shouldBeCalled();
+        $this->zmqClient->receive()->shouldNotBeCalled();
+
         $zmqMessageProducer = $this->zmqMessageProducer;
         $doSomething = new DoSomething(['data' => 'test command']);
         $zmqMessageProducer($doSomething, $this->prophesize(\React\Promise\Deferred::class)->reveal());

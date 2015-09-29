@@ -45,13 +45,18 @@ class ZeroMQMessageProducer implements MessageProducer
      */
     public function __invoke(Message $message, Deferred $deferred = null)
     {
-        if (null !== $deferred) {
+        if ((null !== $deferred) and (! $this->zmqClient->handlesDeferred())) {
             throw new RuntimeException(__CLASS__ . ' cannot handle query messages which require future responses.');
         }
 
         $data = $this->arrayFromMessage($message);
 
         $this->zmqClient->send(json_encode($data), ZMQ::MODE_DONTWAIT);
+
+        if ($deferred) {
+            $response = $this->zmqClient->receive();
+            $deferred->resolve($response);
+        }
     }
 
     /**
