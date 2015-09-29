@@ -47,7 +47,7 @@ class ZeroMQMessageProducerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \RuntimeException
+     * @expectedException \Prooph\ServiceBus\Exception\RuntimeException
      */
     public function it_throws_runtime_exception_when_request_deferred_and_not_using_rpc()
     {
