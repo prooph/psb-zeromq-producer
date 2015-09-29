@@ -25,8 +25,9 @@ final class ZeroMQMessageProducerFactory
 
         $dsn = isset($config['dsn']) ? $config['dsn'] : self::DEFAULT_DSN;
         $persistentId = isset($config['persistent_id']) ? $config['persistent_id'] : self::DEFAULT_PERSISTENT_ID;
+        $rpc = isset($config['rpc']) ? boolval($config['rpc']) : false;
 
-        $socket = $this->makeConnection($persistentId, $dsn);
+        $socket = $this->makeConnection($persistentId, $dsn, $rpc);
         $messageConverter = $this->makeMessageConverter($config);
 
         return new ZeroMQMessageProducer($socket, $messageConverter);
@@ -35,12 +36,14 @@ final class ZeroMQMessageProducerFactory
     /**
      * @param string $persistentId
      * @param string $dsn
+     * @param bool $rpc
      * @return ZeroMQSocket
      */
-    private function makeConnection($persistentId, $dsn)
+    private function makeConnection($persistentId, $dsn, $rpc)
     {
+        $mode = $rpc ? ZMQ::SOCKET_REQ : ZMQ::SOCKET_PUSH;
         $context = new ZMQContext;
-        $socket = new ZMQSocket($context, ZMQ::SOCKET_PUB, $persistentId);
+        $socket = new ZMQSocket($context, $mode, $persistentId);
 
         return new ZeroMQSocket($socket, $dsn);
     }
