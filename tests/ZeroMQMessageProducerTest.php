@@ -35,6 +35,7 @@ class ZeroMQMessageProducerTest extends \PHPUnit_Framework_TestCase
      */
     public function it_sends_message_as_a_json_encoded_string()
     {
+        $this->zmqClient->handlesDeferred()->willReturn(false);
         $zmqMessageProducer = $this->zmqMessageProducer;
         $doSomething = new DoSomething(['data' => 'test command']);
 
@@ -58,6 +59,19 @@ class ZeroMQMessageProducerTest extends \PHPUnit_Framework_TestCase
         $zmqMessageProducer = $this->zmqMessageProducer;
         $doSomething = new DoSomething(['data' => 'test command']);
         $zmqMessageProducer($doSomething, $this->prophesize(Deferred::class)->reveal());
+    }
+
+    /**
+     * @test
+     * @expectedException \Prooph\ServiceBus\Exception\RuntimeException
+     */
+    public function it_throws_runtime_exception_when_request_is_not_deferred_and_using_rpc()
+    {
+        $this->zmqClient->handlesDeferred()->willReturn(true)->shouldBeCalled();
+
+        $zmqMessageProducer = $this->zmqMessageProducer;
+        $doSomething = new DoSomething(['data' => 'test command']);
+        $zmqMessageProducer($doSomething);
     }
 
     /**

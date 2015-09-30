@@ -45,9 +45,7 @@ class ZeroMQMessageProducer implements MessageProducer
      */
     public function __invoke(Message $message, Deferred $deferred = null)
     {
-        if ((null !== $deferred) and (! $this->zmqClient->handlesDeferred())) {
-            throw new RuntimeException(__CLASS__ . ' cannot handle query messages which require future responses.');
-        }
+        $this->assertDeferred(null !== $deferred);
 
         $data = $this->arrayFromMessage($message);
 
@@ -56,6 +54,21 @@ class ZeroMQMessageProducer implements MessageProducer
         if ($deferred) {
             $response = $this->zmqClient->receive();
             $deferred->resolve($response);
+        }
+    }
+
+    /**
+     * @param bool $usingDeferred
+     * @throws RuntimeException
+     */
+    private function assertDeferred($usingDeferred)
+    {
+        if ($usingDeferred and (! $this->zmqClient->handlesDeferred())) {
+            throw new RuntimeException(__CLASS__ . ' cannot handle query messages which require future responses.');
+        }
+
+        if ($this->zmqClient->handlesDeferred() and (! $usingDeferred)) {
+            throw new RuntimeException(__CLASS__ . ' cannot handle push and forget messages.');
         }
     }
 
