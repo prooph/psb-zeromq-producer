@@ -10,7 +10,7 @@ use Interop\Container\ContainerInterface;
 use Prooph\Common\Messaging\NoOpMessageConverter;
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQMessageProducer;
 
-final class ZeroMQMessageProducerFactory
+class ZeroMQMessageProducerFactory
 {
     const DEFAULT_DSN = 'tcp://127.0.0.1:5555';
     const DEFAULT_PERSISTENT_ID = 'prooph';
@@ -21,7 +21,7 @@ final class ZeroMQMessageProducerFactory
      */
     public function __invoke(ContainerInterface $container)
     {
-        $config = $container->get('config')['prooph']['producer'];
+        $config = $this->getConfigFromContainer($container);
 
         $dsn = isset($config['dsn']) ? $config['dsn'] : self::DEFAULT_DSN;
         $persistentId = isset($config['persistent_id']) ? $config['persistent_id'] : self::DEFAULT_PERSISTENT_ID;
@@ -31,6 +31,18 @@ final class ZeroMQMessageProducerFactory
         $messageConverter = $this->makeMessageConverter($config);
 
         return new ZeroMQMessageProducer($socket, $messageConverter);
+    }
+
+    /**
+     * Override this method in a custom factory to access a custom config path
+     *
+     * @param ContainerInterface $container
+     * @return array
+     */
+    protected function getConfigFromContainer(ContainerInterface $container)
+    {
+        return isset($container->get('config')['prooph']['zeromq_producer'])
+            ? $container->get('config')['prooph']['zeromq_producer'] : [] ;
     }
 
     /**

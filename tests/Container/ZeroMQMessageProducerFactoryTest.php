@@ -24,7 +24,7 @@ class ZeroMQMessageProducerFactoryTest extends \PHPUnit_Framework_TestCase
     public function it_will_get_configuration()
     {
         $this->container->get('config')->willReturn([
-            'prooph' => ['producer' => []],
+            'prooph' => ['zeromq_producer' => []],
         ])->shouldBeCalled();
 
         $factory = new ZeroMQMessageProducerFactory;
@@ -106,6 +106,19 @@ class ZeroMQMessageProducerFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function it_does_not_require_a_configuration()
+    {
+        $this->container->get('config')->willReturn([])->shouldBeCalled();
+
+        $factory = new ZeroMQMessageProducerFactory;
+        $producer = $factory($this->container->reveal());
+
+        $this->assertInstanceOf(ZeroMQMessageProducer::class, $producer);
+    }
+
+    /**
      * @param string $dsn
      * @param string $persistent_id
      * @param bool $rpc
@@ -116,7 +129,7 @@ class ZeroMQMessageProducerFactoryTest extends \PHPUnit_Framework_TestCase
         $config = compact('dsn', 'persistent_id', 'rpc');
         $this->container->get('config')->willReturn([
             'prooph' => [
-                'producer' => $config,
+                'zeromq_producer' => $config,
             ],
         ])->shouldBeCalled();
 
