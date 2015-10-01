@@ -108,7 +108,7 @@ class ZeroMQMessageProducerFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    function it_does_not_require_a_configuration()
+    public function it_does_not_require_a_configuration()
     {
         $this->container->get('config')->willReturn([])->shouldBeCalled();
 
