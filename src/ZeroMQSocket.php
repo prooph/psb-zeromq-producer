@@ -47,6 +47,22 @@ class ZeroMQSocket
     /**
      * @return string
      */
+    public function receive()
+    {
+        return $this->socket->recv();
+    }
+
+    /**
+     * @return bool
+     */
+    public function handlesDeferred()
+    {
+        return $this->socket->getSocketType() === \ZMQ::SOCKET_REQ;
+    }
+
+    /**
+     * @return string
+     */
     public function getDsn()
     {
         return $this->dsn;

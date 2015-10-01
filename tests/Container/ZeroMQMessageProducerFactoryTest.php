@@ -84,13 +84,36 @@ class ZeroMQMessageProducerFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function rpc_is_disabled_by_default()
+    {
+        $result = $this->make();
+        $socket = $result->getSocket();
+
+        $this->assertFalse($socket->handlesDeferred());
+    }
+
+    /**
+     * @test
+     */
+    public function rpc_can_be_enabled()
+    {
+        $result = $this->make(null, null, true);
+        $socket = $result->getSocket();
+
+        $this->assertTrue($socket->handlesDeferred());
+    }
+
+    /**
      * @param string $dsn
      * @param string $persistent_id
+     * @param bool $rpc
      * @return ZeroMQMessageProducer
      */
-    private function make($dsn = null, $persistent_id = null)
+    private function make($dsn = null, $persistent_id = null, $rpc = null)
     {
-        $config = compact('dsn', 'persistent_id');
+        $config = compact('dsn', 'persistent_id', 'rpc');
         $this->container->get('config')->willReturn([
             'prooph' => [
                 'producer' => $config,

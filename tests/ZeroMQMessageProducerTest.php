@@ -8,6 +8,7 @@ use Prooph\ServiceBusTest\Mock\DoSomething;
 use Prooph\Common\Messaging\NoOpMessageConverter;
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQSocket;
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQMessageProducer;
+use React\Promise\Deferred;
 
 class ZeroMQMessageProducerTest extends \PHPUnit_Framework_TestCase
 {
@@ -34,6 +35,7 @@ class ZeroMQMessageProducerTest extends \PHPUnit_Framework_TestCase
      */
     public function it_sends_message_as_a_json_encoded_string()
     {
+        $this->zmqClient->handlesDeferred()->willReturn(false);
         $zmqMessageProducer = $this->zmqMessageProducer;
         $doSomething = new DoSomething(['data' => 'test command']);
 
@@ -47,13 +49,52 @@ class ZeroMQMessageProducerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \RuntimeException
+     * @expectedException \Prooph\ServiceBus\Exception\RuntimeException
      */
-    public function it_throws_runtime_exception_when_request_deferred()
+    public function it_throws_runtime_exception_when_request_deferred_and_not_using_rpc()
     {
+        $this->zmqClient->handlesDeferred()->willReturn(false)->shouldBeCalled();
+        $this->zmqClient->receive()->shouldNotBeCalled();
+
         $zmqMessageProducer = $this->zmqMessageProducer;
         $doSomething = new DoSomething(['data' => 'test command']);
-        $zmqMessageProducer($doSomething, $this->prophesize(\React\Promise\Deferred::class)->reveal());
+        $zmqMessageProducer($doSomething, $this->prophesize(Deferred::class)->reveal());
+    }
+
+    /**
+     * @test
+     * @expectedException \Prooph\ServiceBus\Exception\RuntimeException
+     */
+    public function it_throws_runtime_exception_when_request_is_not_deferred_and_using_rpc()
+    {
+        $this->zmqClient->handlesDeferred()->willReturn(true)->shouldBeCalled();
+
+        $zmqMessageProducer = $this->zmqMessageProducer;
+        $doSomething = new DoSomething(['data' => 'test command']);
+        $zmqMessageProducer($doSomething);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_handle_rpc()
+    {
+        $this->zmqClient->handlesDeferred()->willReturn(true)->shouldBeCalled();
+        $this->zmqClient->receive()->willReturn($response = 'Hello World')->shouldBeCalled();
+
+        $deferred = $this->prophesize(Deferred::class);
+        $deferred->resolve($response)->shouldBeCalled();
+
+        $zmqMessageProducer = $this->zmqMessageProducer;
+        $doSomething = new DoSomething(['data' => 'test command']);
+
+
+        $this->zmqClient
+            ->send($this->validate_message_body($doSomething), \ZMQ::MODE_NOBLOCK)
+            ->willReturn(null)
+            ->shouldBeCalled();
+
+        $zmqMessageProducer($doSomething, $deferred->reveal());
     }
 
     /**
