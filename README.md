@@ -7,9 +7,113 @@ ZeroMQ message dispatcher for ProophServiceBus
 Use [ZeroMQ](http://zeromq.org/) as message producer for [Prooph Service Bus](https://github.com/prooph/service-bus).
 Works together with bus types: CommandBus, EventBus.
 
+# Requirements
+PHP doesn't come with native support for ZeroMQ however there is an extension `ext-zmq` instructions are available on the ZMQ website for the PHP bindings.
+
+http://zeromq.org/bindings:php
+
 # Installation
 
-You can install the producer via composer by adding `"prooph/psb-zeromq-producer": "dev-master"` as requirement to your composer.json.
+So after `ext-zmq` is installed on your server/development machine you're ready for the next step! Composer will be able to install prooph zeromq producer in seconds if not quicker. Run the following command to install via composer.
+
+`composer require prooph/psb-zeromq-producer:~0.2`
+
+# Command/Event Bus (PUB/SUB)
+
+To construct your Command/Event bus you'll need to have a server running ZMQ with [`ZMQ::SOCKET_SUB`](http://php.net/manual/en/class.zmq.php#zmq.constants.socket-sub) this will then receive the messages from the producer.
+
+For basic tutorial on PUB/SUB: http://zguide.zeromq.org/page:all#Getting-the-Message-Out
+
+### Usage Examples
+
+```
+$container = new Container;
+$container['config'] = [
+    'prooph' => [
+        'zeromq_producer' => [
+            'dsn' => 'tcp://127.0.0.1:5555', // ZMQ Server Address.
+            'persistent_id' => 'example', // ZMQ Persistent ID to keep connections alive between requests.
+            'rpc' => false, // Use as Query Bus.
+        ]
+    ]
+];
+
+$factory = Prooph\ServiceBus\Message\ZeroMQ\Container\ZeroMQMessageProducerFactory;
+$zmqProducer = $factory($container);
+
+// Setup complete, now to add it to the prooph service bus.
+
+$commandBus = new Prooph\ServiceBus\CommandBus();
+$router = new Prooph\ServiceBus\Plugin\Router\CommandRouter();
+$router->route('ExampleCommand')
+    ->to($zmqProducer);
+
+$commandBus->utilize($router);
+$echoText = new ExampleCommand('It works');
+$commandBus->dispatch($echoText);
+
+// Now check your server to make sure it received this command.
+```
+
+# Query Bus (REQ/REP)
+
+To construct your Query bus you'll need to have a ZMQ server running with [`ZMQ::SOCKET_REP`](http://php.net/manual/en/class.zmq.php#zmq.constants.socket-rep) this will then receive the messages from the producer and MUST reply as part of the REQ/REP specification.
+
+For basic tutorial on REQ/REP: http://zguide.zeromq.org/page:all#Ask-and-Ye-Shall-Receive
+
+### Usage Examples
+
+```
+// file: CLIENT.php
+
+$container = new Container;
+$container['config'] = [
+    'prooph' => [
+        'zeromq_producer' => [
+            'dsn' => 'tcp://127.0.0.1:5556', // ZMQ Server Address.
+            'persistent_id' => 'example', // ZMQ Persistent ID to keep connections alive between requests.
+            'rpc' => true, // Use as Query Bus.
+        ]
+    ]
+];
+
+$factory = Prooph\ServiceBus\Message\ZeroMQ\Container\ZeroMQMessageProducerFactory;
+$zmqProducer = $factory($container);
+
+// Setup complete, now to add it to the prooph service bus.
+
+$queryBus = new Prooph\ServiceBus\QueryBus();
+$router = new Prooph\ServiceBus\Plugin\Router\QueryRouter();
+$router->route('ExampleQuery')
+    ->to($zmqProducer);
+
+$queryBus->utilize($router);
+$getText = new ExampleQuery('Hello Server.');
+$promise = $queryBus->dispatch($getText);
+
+$promise->then(function ($response) {
+    var_dump($response); // string "Hello Client."
+});
+
+exit(0);
+
+// file: SERVER.php
+<?php
+
+$context = new ZMQContext;
+$socket = new ZMQSocket($context, ZMQ::SOCKET_REP);
+$socket->bind('tcp://127.0.0.1:5556');
+
+echo "ZMQ Stub Server Started.";
+
+while ($message = $socket->recv()) {
+    if ('Hello Server.' === $message) {
+        $socket->send('Hello Client.');
+    }
+}
+
+
+```
 
 # Support
 

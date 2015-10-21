@@ -29,7 +29,8 @@
     "require-dev": {
         "phpunit/phpunit": "~4.7",
         "fabpot/php-cs-fixer": "1.7.*",
-        "satooshi/php-coveralls": "dev-master"
+        "satooshi/php-coveralls": "dev-master",
+        "container-interop/container-interop" : "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -38,7 +39,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Prooph\\ServiceBusTest\\": "vendor/prooph/service-bus/tests/",
+            "ProophTest\\ServiceBus\\": "vendor/prooph/service-bus/tests/",
             "ProophTest\\ServiceBus\\Message\\ZeroMQ\\": "./tests"
         }
     },
