@@ -64,11 +64,13 @@ For basic tutorial on REQ/REP: http://zguide.zeromq.org/page:all#Ask-and-Ye-Shal
 ### Usage Examples
 
 ```
+// file: CLIENT.php
+
 $container = new Container;
 $container['config'] = [
     'prooph' => [
         'zeromq_producer' => [
-            'dsn' => 'tcp://127.0.0.1:5555', // ZMQ Server Address.
+            'dsn' => 'tcp://127.0.0.1:5556', // ZMQ Server Address.
             'persistent_id' => 'example', // ZMQ Persistent ID to keep connections alive between requests.
             'rpc' => true, // Use as Query Bus.
         ]
@@ -80,7 +82,37 @@ $zmqProducer = $factory($container);
 
 // Setup complete, now to add it to the prooph service bus.
 
-// @codeliner can yo give this implementation.
+$queryBus = new Prooph\ServiceBus\QueryBus();
+$router = new Prooph\ServiceBus\Plugin\Router\QueryRouter();
+$router->route('ExampleQuery')
+    ->to($zmqProducer);
+
+$queryBus->utilize($router);
+$getText = new ExampleQuery('Hello Server.');
+$promise = $queryBus->dispatch($getText);
+
+$promise->then(function ($response) {
+    var_dump($response); // string "Hello Client."
+});
+
+exit(0);
+
+// file: SERVER.php
+<?php
+
+$context = new ZMQContext;
+$socket = new ZMQSocket($context, ZMQ::SOCKET_REP);
+$socket->bind('tcp://127.0.0.1:5556');
+
+echo "ZMQ Stub Server Started.";
+
+while ($message = $socket->recv()) {
+    if ('Hello Server.' === $message) {
+        $socket->send('Hello Client.');
+    }
+}
+
+
 ```
 
 # Support
