@@ -4,7 +4,7 @@ namespace ProophTest\ServiceBus\Message\ZeroMQ;
 
 use Prophecy\Argument;
 use Prooph\Common\Messaging\DomainMessage;
-use Prooph\ServiceBusTest\Mock\DoSomething;
+use ProophTest\ServiceBus\Mock\DoSomething;
 use Prooph\Common\Messaging\NoOpMessageConverter;
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQSocket;
 use Prooph\ServiceBus\Message\ZeroMQ\ZeroMQMessageProducer;
