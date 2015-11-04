@@ -1,7 +1,7 @@
 {
     "name": "prooph/psb-zeromq-producer",
     "description": "ZeroMQ Message Producer for Prooph Service Bus",
-    "homepage": "https://github.com/prooph/psb-zeromq-producer",
+    "homepage": "http://getprooph.org/",
     "license": "BSD-3-Clause",
     "authors": [
         {
