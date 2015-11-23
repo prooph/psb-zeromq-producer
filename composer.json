@@ -23,7 +23,7 @@
     "require": {
         "php": ">=5.5",
         "ext-zmq": "*",
-        "prooph/service-bus" : "^4.0",
+        "prooph/service-bus" : ">=4.0 <6.0",
         "react/promise": "~2."
     },
     "require-dev": {
