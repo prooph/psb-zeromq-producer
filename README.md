@@ -7,6 +7,12 @@ ZeroMQ message dispatcher for ProophServiceBus
 Use [ZeroMQ](http://zeromq.org/) as message producer for [Prooph Service Bus](https://github.com/prooph/service-bus).
 Works together with bus types: CommandBus, EventBus.
 
+## Important
+
+This library will receive support until December 31, 2019 and will then be deprecated.
+
+For further information see the official announcement here: [https://www.sasaprolic.com/2018/08/the-future-of-prooph-components.html](https://www.sasaprolic.com/2018/08/the-future-of-prooph-components.html)
+
 # Requirements
 PHP doesn't come with native support for ZeroMQ however there is an extension `ext-zmq` instructions are available on the ZMQ website for the PHP bindings.
 
